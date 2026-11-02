@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { loginContext } from "../Context/AuthContext.js";
-import { useNavigate } from "react-router";
+import { data, useNavigate } from "react-router";
 import {
   LockKeyhole,
   Mail,
@@ -9,73 +9,114 @@ import {
   EyeOff,
   MapPinned,
 } from "lucide-react";
-
+import { useForm, type SubmitHandler } from "react-hook-form";
+type FormValues = {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+};
+const mockUser = {
+  name: "Ghazal",
+  email: "Ghazal@gmail.com",
+  password: "12345678gh",
+};
 function Login() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [pasword, setPasword] = useState("");
-  const [error, setError] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [remmember, setRemmember] = useState(false);
-  const [confirmPassword, setConfirmPassword] = useState("");
+  // const [name, setName] = useState("");
+  // const [email, setEmail] = useState("");
+  // const [pasword, setPasword] = useState("");
+  // const [error, setError] = useState("");
+  // const [showPassword, setShowPassword] = useState(false);
+  // const [remmember, setRemmember] = useState(false);
+  // const [confirmPassword, setConfirmPassword] = useState("");
 
-  const regexPasword = /^(?=.*[A-Za-z])(?=.*[0-9]).{8,}$/;
-  const regexName = /^[A-Za-z]+$/;
-  const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // const regexPasword = /^(?=.*[A-Za-z])(?=.*[0-9]).{8,}$/;
+  // const regexName = /^[A-Za-z]+$/;
+  // const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+  // const { user, logout, login } = useContext(loginContext);
+  // const navigate = useNavigate();
+
+  // const handleInputs = (e:React.SubmitEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+
+  //   if (!name) {
+  //     setError("Name is empty.");
+  //     return;
+  //   }
+
+  //   if (!regexName.test(name)) {
+  //     setError("Name format is wrong.");
+  //     return;
+  //   }
+
+  //   if (!email) {
+  //     setError("Email is empty.");
+  //     return;
+  //   }
+
+  //   if (!regexEmail.test(email)) {
+  //     setError("Email format is wrong.");
+  //     return;
+  //   }
+
+  //   if (!pasword) {
+  //     setError("Password is empty.");
+  //     return;
+  //   }
+
+  //   if (!regexPasword.test(pasword)) {
+  //     setError(
+  //       "Password must be at least 8 characters and contain a letter and a number.",
+  //     );
+  //     return;
+  //   }
+  //   if (!confirmPassword) {
+  //     setError("confirmPassword is empty.");
+  //     return;
+  //   }
+  //   if (pasword !==confirmPassword) {
+  //     setError("یکی نیست پسسووردا");
+  //     return;
+  //   }
+
+  //   login(name, email, remmember);
+  //   setError("");
+  //   navigate("/");
+  // };
   const { user, logout, login } = useContext(loginContext);
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [remmember, setRemmember] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormValues>({
+    defaultValues: { email: "", name: "", password: "", confirmPassword: "" },
+  });
 
-  const handleInputs = (e:React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!name) {
-      setError("Name is empty.");
+  const onSubmit: SubmitHandler<FormValues> = (data) => {
+    if (data.name !== mockUser.name) {
+      alert("Name format is wrong.");
       return;
     }
-
-    if (!regexName.test(name)) {
-      setError("Name format is wrong.");
+    if (data.email !== mockUser.email) {
+      alert("Email format is wrong.");
       return;
     }
-
-    if (!email) {
-      setError("Email is empty.");
+    if (data.password !== mockUser.password) {
+      alert("Password format is wrong.");
       return;
     }
-
-    if (!regexEmail.test(email)) {
-      setError("Email format is wrong.");
-      return;
+    if (data.password !== data.confirmPassword) {
+      alert("یکی نیست پسسووردا");
     }
-
-    if (!pasword) {
-      setError("Password is empty.");
-      return;
-    }
-
-    if (!regexPasword.test(pasword)) {
-      setError(
-        "Password must be at least 8 characters and contain a letter and a number.",
-      );
-      return;
-    }
-    if (!confirmPassword) {
-      setError("confirmPassword is empty.");
-      return;
-    }
-    if (pasword !==confirmPassword) {
-      setError("یکی نیست پسسووردا");
-      return;
-    }
-
-    login(name, email, remmember);
-    setError("");
+    login(mockUser.name, mockUser.email, remmember);
     navigate("/");
   };
-
   return (
-    <div className="min-h-screen bg-[#f3f6fa] flex items-center justify-center p-5">
+    <div className="min-h-screen bg-[#f3f6fa] flex items-center justify-center p-5 h-screen ">
       <div className="w-full max-w-[1000px] min-h-[620px] bg-white rounded-[28px] overflow-hidden shadow-[0_20px_60px_rgba(30,60,90,0.12)] flex">
         <div className="hidden md:block w-[45%] relative">
           <img
@@ -118,7 +159,7 @@ function Login() {
               <span className="font-bold text-lg">Wanderly</span>
             </div> */}
 
-            {user ? (
+            {/* {user ? (
               <div className="flex flex-col items-center text-center gap-5">
                 <div className="w-16 h-16 rounded-full bg-[#eaf3f8] flex items-center justify-center text-[#173c5c]">
                   <UserRound size={30} />
@@ -141,183 +182,189 @@ function Login() {
                   Log out
                 </button>
               </div>
-            ) : (
-              <>
-                <div className="mb-8">
-                  <h1 className="text-3xl font-bold text-[#173c5c]">
-                    Welcome Back
-                  </h1>
+            ) : ( */}
+            <>
+              <div className="mb-8">
+                <h1 className="text-3xl font-bold text-[#173c5c]">
+                  Welcome Back
+                </h1>
 
-                  <p className="text-sm text-gray-400 mt-2">
-                    Sign in to continue your journey
-                  </p>
+                <p className="text-sm text-gray-400 mt-2">
+                  Sign in to continue your journey
+                </p>
+              </div>
+
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                <div>
+                  <label className="block text-xs font-medium text-[#52677a] mb-2">
+                    Name
+                  </label>
+
+                  <div className="relative">
+                    <UserRound
+                      size={17}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                    />
+
+                    <input
+                      type="text"
+                      placeholder="name..."
+                      {...register("name")}
+                      className="w-full h-12 rounded-xl border border-[#dce5ec] bg-[#fbfcfd] pl-11 pr-4 text-sm outline-none focus:border-[#173c5c] transition"
+                    />
+                  </div>
+                  {errors.name && (
+                    <p className="text-red-500 text-xs">
+                      {errors.name.message}
+                    </p>
+                  )}
                 </div>
 
-                <form onSubmit={handleInputs} className="space-y-5">
-                  <div>
-                    <label className="block text-xs font-medium text-[#52677a] mb-2">
-                      Name
-                    </label>
+                <div>
+                  <label className="block text-xs font-medium text-[#52677a] mb-2">
+                    Email
+                  </label>
 
-                    <div className="relative">
-                      <UserRound
-                        size={17}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                      />
+                  <div className="relative">
+                    <Mail
+                      size={17}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                    />
 
-                      <input
-                        type="text"
-                        value={name}
-                        placeholder="Your name"
-                        onChange={(e) => setName(e.target.value)}
-                        className="w-full h-12 rounded-xl border border-[#dce5ec] bg-[#fbfcfd] pl-11 pr-4 text-sm outline-none focus:border-[#173c5c] transition"
-                      />
-                    </div>
+                    <input
+                      type="email"
+                      placeholder="email..."
+                      {...register("email")}
+                      className="w-full h-12 rounded-xl border border-[#dce5ec] bg-[#fbfcfd] pl-11 pr-4 text-sm outline-none focus:border-[#173c5c] transition"
+                    />
+                    {errors.email && (
+                      <p className="text-red-500 text-xs">
+                        {errors.email.message}
+                      </p>
+                    )}
                   </div>
+                </div>
 
-                  <div>
-                    <label className="block text-xs font-medium text-[#52677a] mb-2">
-                      Email
-                    </label>
+                <div>
+                  <label className="block text-xs font-medium text-[#52677a] mb-2">
+                    Password
+                  </label>
 
-                    <div className="relative">
-                      <Mail
-                        size={17}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                      />
+                  <div className="relative">
+                    <LockKeyhole
+                      size={17}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                    />
 
-                      <input
-                        type="email"
-                        value={email}
-                        placeholder="you@example.com"
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full h-12 rounded-xl border border-[#dce5ec] bg-[#fbfcfd] pl-11 pr-4 text-sm outline-none focus:border-[#173c5c] transition"
-                      />
-                    </div>
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Password..."
+                      {...register("confirmPassword")}
+                      className="w-full h-12 rounded-xl border border-[#dce5ec] bg-[#fbfcfd] pl-11 pr-12 text-sm outline-none focus:border-[#173c5c] transition"
+                    />
+                    {errors.password && (
+                      <p className="text-red-500 text-xs">
+                        {errors.password.message}
+                      </p>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#173c5c]"
+                    >
+                      {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                    </button>
                   </div>
+                </div>
 
-                  <div>
-                    <label className="block text-xs font-medium text-[#52677a] mb-2">
-                      Password
-                    </label>
+                <div>
+                  <label className="block text-xs font-medium text-[#52677a] mb-2">
+                    confirmPassword
+                  </label>
 
-                    <div className="relative">
-                      <LockKeyhole
-                        size={17}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                      />
+                  <div className="relative">
+                    <LockKeyhole
+                      size={17}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                    />
 
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        value={pasword}
-                        placeholder="••••••••"
-                        onChange={(e) => setPasword(e.target.value)}
-                        className="w-full h-12 rounded-xl border border-[#dce5ec] bg-[#fbfcfd] pl-11 pr-12 text-sm outline-none focus:border-[#173c5c] transition"
-                      />
-
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#173c5c]"
-                      >
-                        {showPassword ? (
-                          <EyeOff size={17} />
-                        ) : (
-                          <Eye size={17} />
-                        )}
-                      </button>
-                    </div>
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="confirmPassword..."
+                      {...register("password")}
+                      className="w-full h-12 rounded-xl border border-[#dce5ec] bg-[#fbfcfd] pl-11 pr-12 text-sm outline-none focus:border-[#173c5c] transition"
+                    />
+                    {errors.confirmPassword && (
+                      <p className="text-red-500 text-xs">
+                        {errors.confirmPassword.message}
+                      </p>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#173c5c]"
+                    >
+                      {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                    </button>
                   </div>
+                </div>
 
-                  <div>
-                    <label className="block text-xs font-medium text-[#52677a] mb-2">
-                      confirmPassword
-                    </label>
+                <div className="flex items-center justify-between text-xs">
+                  <label className="flex items-center gap-2 text-gray-500">
+                    {/* <input type="checkbox" className="accent-[#173c5c]" /> */}
+                    <input
+                      type="checkbox"
+                      className="checkbox validator"
+                      title="Required"
+                      onChange={() => setRemmember(!remmember)}
+                    />
+                    Remember me
+                  </label>
 
-                    <div className="relative">
-                      <LockKeyhole
-                        size={17}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                      />
-
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        value={confirmPassword}
-                        placeholder="••••••••"
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full h-12 rounded-xl border border-[#dce5ec] bg-[#fbfcfd] pl-11 pr-12 text-sm outline-none focus:border-[#173c5c] transition"
-                      />
-
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#173c5c]"
-                      >
-                        {showPassword ? (
-                          <EyeOff size={17} />
-                        ) : (
-                          <Eye size={17} />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between text-xs">
-                    <label className="flex items-center gap-2 text-gray-500">
-                      {/* <input type="checkbox" className="accent-[#173c5c]" /> */}
-                      <input
-                        type="checkbox"
-                        className="checkbox validator"
-                        title="Required"
-                        onChange={() => setRemmember(!remmember)}
-                      />
-                      Remember me
-                    </label>
-
-                    {/* <button
+                  {/* <button
                       type="button"
                       className="text-[#2c6288] hover:underline"
                     >
                       Forgot password?
                     </button> */}
-                  </div>
+                </div>
 
-                  {error && (
+                {/* {error && (
                     <p className="text-xs text-red-500 bg-red-50 rounded-lg px-3 py-2">
                       {error}
                     </p>
-                  )}
+                  )} */}
 
-                  <button
-                    type="submit"
-                    className="w-full h-12 rounded-full bg-[#173c5c] text-white text-sm font-semibold shadow-md hover:bg-[#0f304b] transition"
-                  >
-                    Sign In
-                  </button>
+                <button
+                  type="submit"
+                  className="w-full h-12 rounded-full bg-[#173c5c] text-white text-sm font-semibold shadow-md hover:bg-[#0f304b] transition"
+                >
+                  Sign In
+                </button>
 
-                  {/* <div className="flex items-center gap-3">
-                    <div className="h-px bg-[#e5ebef] flex-1" />
-                    <span className="text-xs text-gray-400">or</span>
-                    <div className="h-px bg-[#e5ebef] flex-1" />
-                  </div> */}
+                <div className="flex items-center gap-3">
+                  <div className="h-px bg-[#e5ebef] flex-1" />
+                  <span className="text-xs text-gray-400">or</span>
+                  <div className="h-px bg-[#e5ebef] flex-1" />
+                </div>
 
-                  {/* <button
-                    type="button"
-                    className="w-full h-12 rounded-full border border-[#dce5ec] bg-white text-sm font-medium text-[#42566a] hover:bg-gray-50 transition"
-                  >
-                    <span className="mr-2 font-bold text-[#4285F4]">G</span>
-                    Continue with Google
-                  </button> */}
-                </form>
+                <button
+                  type="button"
+                  className="w-full h-12 rounded-full border border-[#dce5ec] bg-white text-sm font-medium text-[#42566a] hover:bg-gray-50 transition"
+                >
+                  <span className="mr-2 font-bold text-[#4285F4]">G</span>
+                  Continue with Google
+                </button>
+              </form>
 
-                {/* <p className="text-center text-xs text-gray-400 mt-8">
-                  Don't have an account?
-                  <button className="text-[#2c6288] font-medium hover:underline">
-                    Sign up
-                  </button>
-                </p> */}
-              </>
-            )}
+              <p className="text-center text-xs text-gray-400 mt-8">
+                Don't have an account?
+                <button className="text-[#2c6288] font-medium hover:underline">
+                  Sign up
+                </button>
+              </p>
+            </>
+            {/* )} */}
           </div>
         </div>
       </div>
