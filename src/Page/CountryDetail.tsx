@@ -12,13 +12,14 @@ import {
   BadgeDollarSign,
   Wind,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 interface Country {
   name: string;
   flags: {
     png: string;
   };
-  latlng: [number,number];
+  latlng: [number, number];
   region: string;
   capital: string;
   population: number;
@@ -41,10 +42,10 @@ interface Weather {
 }
 
 function CountryDetail() {
-  const [weather, setWeather] = useState<Weather | null>(null);
+  // const [weather, setWeather] = useState<Weather | null>(null);
   const location = useLocation();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  // const [loading, setLoading] = useState(false);
+  // const [error, setError] = useState("");
 
   const selectedCountry = location.state as Country;
 
@@ -59,30 +60,17 @@ function CountryDetail() {
       item.latlng[1] === selectedCountry.latlng[1]
     );
   });
-
-  async function handleClickCountry(selectedCountry: Country) {
-    try {
-      setLoading(true);
-      setError("");
-
-      console.log(selectedCountry);
-
-      const latitude = selectedCountry.latlng[0];
-      const longitude = selectedCountry.latlng[1];
-      console.log(selectedCountry);
-
-      const weatherData = await getWeather(latitude, longitude);
-      setWeather(weatherData);
-    } catch (error) {
-      setError("nothing found");
-    } finally {
-      setLoading(false);
-    }
-  }
-  useEffect(() => {
-    handleClickCountry(selectedCountry);
-  }, [selectedCountry]);
-
+  const latitude = selectedCountry.latlng[0];
+  const longitude = selectedCountry.latlng[1];
+  const {
+    data: weather,
+    isLoading: loading,
+    isError: error,
+  } = useQuery({
+    queryKey: ["weather", latitude, longitude],
+    queryFn: () => getWeather(latitude, longitude),
+    enabled: !!selectedCountry?.latlng,
+  });
   function handleFavoriteClick() {
     if (!showLoginModal) {
       addFavorite(selectedCountry);

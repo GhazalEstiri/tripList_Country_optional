@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { getCountry, searchCountry } from "../Services/Api.js";
 import { useNavigate } from "react-router";
 import Navbar from "./Navbar.js";
 import { ChevronRight, Search } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 interface Country {
   name: string;
   flags: {
@@ -11,24 +12,13 @@ interface Country {
 }
 
 function Countries() {
-  const [country, setCountry] = useState<Country[]>([]);
   const [searchInput, setSearchInput] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const pages = 10;
   const navigate = useNavigate();
+  const limit = 25;
+  const offset = (currentPage - 1) * limit;
 
-  async function getApi() {
-    const limit = 25;
-    const offset = (currentPage - 1) * limit;
-    const countryData = await getCountry(limit, offset);
-    setCountry(countryData);
-  }
-  async function handleSearch() {
-    const nameCountry = searchInput;
-    const searchData = await searchCountry(nameCountry);
-    setCountry(searchData);
-    console.log(country);
-  }
   const pageNumber = Array.from({ length: pages }, (v, i) => i + 1);
   console.log(pageNumber);
 
@@ -37,18 +27,23 @@ function Countries() {
       state: item,
     });
   }
-
-  useEffect(() => {
-    if (searchInput.length == 0) {
-      getApi();
-    } else {
-      handleSearch();
-    }
-  }, [currentPage, searchInput]);
-
-  // const searchCountry = country.filter((item) =>
-  //   item.name.toLowerCase().includes(searchInput.toLowerCase()),
-  // )
+  const {
+    data: country = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery<Country[]>({
+    queryKey: ["countries", currentPage, searchInput],
+    queryFn: () => {
+      if (searchInput.trim().length === 0) {
+        return getCountry(limit, offset);
+      }
+      return searchCountry(searchInput);
+    },
+  });
+  console.log("country:", country);
+  console.log("isLoading:", isLoading);
+  console.log("isError:", isError);
   return (
     <div className="flex  flex-col overflow-x-hidden">
       <Navbar />
@@ -109,32 +104,39 @@ function Countries() {
           </div>
         </div>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-7 p-18 ">
-        {country.length > 0 ? (
-          country.map((item) => (
-            <button
-              key={item.name}
-              onClick={() => handleClick(item)}
-              className="bg-[#F7F9F8] shadow-xl flex p-10 font-bold text-[#1d4362] text-sm cursor-pointer rounded-2xl"
-            >
-              <div className="flex w-200 flex-col gap-8 justify-between">
-                <div key={item.flags.png} className="">
-                  <img src={item.flags.png} alt={item.name} />
-                </div>
-                <div className="flex flex-col justify-center items-baseline w-full gap-6 ">
-                  <p className="line-clamp-1 text-center w-full">{item.name}</p>
-                  <div className=" flex justify-center items-center bg-[#E8F4FD] rounded-2xl p-2 text-sm text-[#1d4362]  mx-auto w-full">
-                    More details <ChevronRight />
+      {isError ? (
+        <p>error</p>
+      ) : isLoading ? (
+        <p>loading</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-7 p-18 ">
+          {country.length > 0 ? (
+            country.map((item) => (
+              <button
+                key={item.name}
+                onClick={() => handleClick(item)}
+                className="bg-[#F7F9F8] shadow-xl flex p-10 font-bold text-[#1d4362] text-sm cursor-pointer rounded-2xl"
+              >
+                <div className="flex w-200 flex-col gap-8 justify-between">
+                  <div key={item.flags.png} className="">
+                    <img src={item.flags.png} alt={item.name} />
+                  </div>
+                  <div className="flex flex-col justify-center items-baseline w-full gap-6 ">
+                    <p className="line-clamp-1 text-center w-full">
+                      {item.name}
+                    </p>
+                    <div className=" flex justify-center items-center bg-[#E8F4FD] rounded-2xl p-2 text-sm text-[#1d4362]  mx-auto w-full">
+                      More details <ChevronRight />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </button>
-          ))
-        ) : (
-          <p>Nothing found</p>
-        )}
-      </div>
+              </button>
+            ))
+          ) : (
+            <p>Nothing found</p>
+          )}
+        </div>
+      )}
 
       <div className="join flex justify-center items-center mb-5 -mt-10 max-w-50 mx-auto">
         {pageNumber.map((btn) => {
